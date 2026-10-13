@@ -1,31 +1,31 @@
 # Largo SDA
 
-Open-source Steam Desktop Authenticator for Windows: Steam Guard codes, trade and market confirmations.
+Open-source Steam Desktop Authenticator для Windows: коды Steam Guard, подтверждения обменов и маркета.
 
 ![Largo SDA](docs/screenshot.png)
 
-## Download
+## Скачать
 
-[LargoSDA.exe](https://github.com/largodevelop/largo-sda/releases/latest) — one file, no installation, no .NET needed.
+[LargoSDA.exe](https://github.com/largodevelop/largo-sda/releases/latest) — один файл, без установки, .NET не нужен.
 
-## Features
+## Возможности
 
-- Steam Guard codes for all accounts, synced with Steam time
-- Trade and market confirmations
-- Add an account: link a new mobile Guard by login and password, or import a `.maFile`
-- Merge another `maFiles` folder by dragging it onto the window
-- Copy `login:password` (passwords are encrypted with Windows DPAPI)
-- Compatible with SDA `.maFile` (unencrypted)
+- Коды Steam Guard для всех аккаунтов, время сверяется со Steam
+- Подтверждения обменов и маркета
+- Добавление аккаунта: привязка нового мобильного Guard по логину и паролю или готовый `.maFile`
+- Объединение папок: перетащите другую папку `maFiles` на окно — аккаунты добавятся
+- Копирование логина, пароля и `логин:пароль` (пароли шифруются Windows)
+- Совместим с `.maFile` от SDA (без шифрования)
 
-The app keeps its accounts in the `maFiles` folder next to `LargoSDA.exe`.
-Keep a backup of it and never share it.
+Аккаунты хранятся в папке `maFiles` рядом с `LargoSDA.exe`.
+Делайте её резервную копию и никому не передавайте.
 
-## Build
+## Сборка
 
 ```bash
 dotnet publish src/LargoSda.App -c Release -r win-x64 -o publish
 ```
 
-## License
+## Лицензия
 
-MIT. JetBrains Mono font — SIL OFL 1.1.
+MIT. Шрифт JetBrains Mono — SIL OFL 1.1.
