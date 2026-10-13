@@ -301,32 +301,6 @@
                   </Grid>
                 </Border>
 
-                <!-- Password editor -->
-                <Border Classes="card" Background="{StaticResource Bg}" Padding="10" Margin="0,6,0,0"
-                        IsVisible="{Binding EditingPassword}">
-                  <StackPanel Spacing="8">
-                    <TextBlock Classes="label" Text="ПАРОЛЬ STEAM" />
-                    <TextBox x:Name="NewPasswordBox" PasswordChar="•" RevealPassword="{Binding #RevealToggle.IsChecked}" Watermark="Пароль"
-                             Text="{Binding NewPassword}" KeyDown="OnNewPasswordKeyDown">
-                      <TextBox.InnerRightContent>
-                        <ToggleButton x:Name="RevealToggle" Classes="eye" ToolTip.Tip="Показать пароль"
-                                      AutomationProperties.Name="Показать пароль">
-                          <Path Classes="icon" Stroke="{Binding $parent[ToggleButton].Foreground}"
-                                Data="M1.5,8 C3.5,4.5 5.6,3 8,3 C10.4,3 12.5,4.5 14.5,8 C12.5,11.5 10.4,13 8,13 C5.6,13 3.5,11.5 1.5,8 Z M8,6 A2,2 0 1 1 7.99,6 Z" />
-                        </ToggleButton>
-                      </TextBox.InnerRightContent>
-                    </TextBox>
-                    <Grid ColumnDefinitions="*,6,*">
-                      <Button Classes="outline" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                              Content="Отмена" Click="OnCancelPassword" />
-                      <Button Grid.Column="2" Classes="solid" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                              Content="Сохранить" Click="OnSavePassword" />
-                    </Grid>
-                    <TextBlock FontSize="11" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"
-                               Text="Шифруется Windows (DPAPI), лежит в папке maFiles." />
-                  </StackPanel>
-                </Border>
-
                 <Button Classes="outline" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                         Margin="0,6,0,0" Content="Подтверждения" Click="OnShowConfirmations" />
               </StackPanel>
@@ -434,6 +408,40 @@
           </Grid>
         </Panel>
       </DockPanel>
+    </Grid>
+
+    <!-- ============ Password dialog (overlay) ============ -->
+    <Grid Grid.Row="1" Background="#B8000000" IsVisible="{Binding IsPrompting}">
+      <Border Classes="card" Background="#121214" Width="380" Padding="20" VerticalAlignment="Center">
+        <StackPanel Spacing="12">
+          <StackPanel Spacing="2" HorizontalAlignment="Center">
+            <TextBlock Classes="label" Text="ПАРОЛЬ STEAM" HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding PromptAccount.Name}" FontSize="16" FontWeight="SemiBold"
+                       HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+          <TextBlock Text="{Binding PromptText}" FontSize="12.5" Foreground="{StaticResource TextDim}"
+                     TextWrapping="Wrap" TextAlignment="Center" />
+          <TextBox x:Name="PromptPasswordBox" PasswordChar="•" RevealPassword="{Binding #PromptReveal.IsChecked}"
+                   Watermark="Пароль" Text="{Binding PromptPassword}" KeyDown="OnPromptKeyDown"
+                   AutomationProperties.Name="Пароль Steam">
+            <TextBox.InnerRightContent>
+              <ToggleButton x:Name="PromptReveal" Classes="eye" ToolTip.Tip="Показать пароль"
+                            AutomationProperties.Name="Показать пароль">
+                <Path Classes="icon" Stroke="{Binding $parent[ToggleButton].Foreground}"
+                      Data="M1.5,8 C3.5,4.5 5.6,3 8,3 C10.4,3 12.5,4.5 14.5,8 C12.5,11.5 10.4,13 8,13 C5.6,13 3.5,11.5 1.5,8 Z M8,6 A2,2 0 1 1 7.99,6 Z" />
+              </ToggleButton>
+            </TextBox.InnerRightContent>
+          </TextBox>
+          <Grid ColumnDefinitions="*,8,*">
+            <Button Classes="outline" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Content="Отмена" Click="OnPromptCancel" />
+            <Button Grid.Column="2" Classes="solid" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Content="Сохранить" Click="OnPromptSave" AutomationProperties.Name="Сохранить пароль" />
+          </Grid>
+          <TextBlock FontSize="11" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" TextAlignment="Center"
+                     Text="Пароль шифруется Windows и хранится в папке maFiles. Вводится один раз." />
+        </StackPanel>
+      </Border>
     </Grid>
 
     <!-- ============ Link wizard (overlay) ============ -->

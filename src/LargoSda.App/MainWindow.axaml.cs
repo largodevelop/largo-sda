@@ -141,17 +141,30 @@ public partial class MainWindow : Window
         if (ViewModel is { } vm) await vm.CopyPasswordAsync(SetClipboard);
     }
 
-    private void OnSavePassword(object? sender, RoutedEventArgs e) => ViewModel?.SaveNewPassword();
+    // ---------- Password dialog ----------
 
-    private void OnCancelPassword(object? sender, RoutedEventArgs e)
+    private async void OnPromptSave(object? sender, RoutedEventArgs e)
     {
-        if (ViewModel is { } vm) vm.EditingPassword = false;
+        if (ViewModel is { } vm) await vm.SavePromptAsync();
     }
 
-    private void OnNewPasswordKeyDown(object? sender, KeyEventArgs e)
+    private void OnPromptCancel(object? sender, RoutedEventArgs e) => ViewModel?.CancelPrompt();
+
+    private void OnPromptKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter) ViewModel?.SaveNewPassword();
-        else if (e.Key == Key.Escape) OnCancelPassword(sender, e);
+        if (e.Key == Key.Enter) OnPromptSave(sender, e);
+        else if (e.Key == Key.Escape) OnPromptCancel(sender, e);
+    }
+
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+        if (ViewModel is { } vm)
+            vm.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(MainViewModel.IsPrompting) && vm.IsPrompting)
+                    Dispatcher.UIThread.Post(() => PromptPasswordBox.Focus());
+            };
     }
 
     // ---------- Row context menu ----------
@@ -178,10 +191,7 @@ public partial class MainWindow : Window
 
     private void OnMenuEditPassword(object? sender, RoutedEventArgs e)
     {
-        if (ViewModel is not { } vm || AccountOf(sender) is not { } account) return;
-        vm.Selected = account;
-        vm.Page = Page.Codes;
-        vm.EditingPassword = true;
+        if (ViewModel is { } vm && AccountOf(sender) is { } account) vm.AskPassword(account);
     }
 
     private void OnMenuConfirmations(object? sender, RoutedEventArgs e)

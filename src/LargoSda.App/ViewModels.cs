@@ -81,6 +81,9 @@ public sealed class ConfirmationViewModel(Confirmation confirmation) : Observabl
 
 public enum Page { Codes, Confirmations }
 
+/// <summary>What to do right after the password dialog saves.</summary>
+public enum AfterPassword { None, CopyPassword, CopyLoginPassword }
+
 public sealed class MainViewModel : ObservableObject
 {
     private readonly AppSettings _settings = AppSettings.Load();
@@ -97,8 +100,6 @@ public sealed class MainViewModel : ObservableObject
     private string _copyHint = "";
     private int _secondsLeft = SteamGuard.PeriodSeconds;
     private bool _timeSynced;
-    private bool _editingPassword;
-    private string _newPassword = "";
     private LinkViewModel? _link;
 
     // Confirmations state for the selected account.
@@ -156,7 +157,6 @@ public sealed class MainViewModel : ObservableObject
             Raise(nameof(HasSelection));
             Password = "";
             ConfError = "";
-            EditingPassword = false;
             if (IsConfirmationsPage) _ = LoadConfirmationsAsync();
         }
     }
@@ -377,7 +377,7 @@ public sealed class MainViewModel : ObservableObject
     public Task CopyLoginAsync(Func<string, Task> setClipboard, AccountViewModel? account = null) =>
         CopyAsync(setClipboard, (account ?? Selected)?.Name, "Логин скопирован");
 
-    /// <summary>Copies login:password; without a saved password copies just the login (never asks for anything).</summary>
+    /// <summary>Copies login:password; without a saved password asks for it once, then copies.</summary>
     public async Task CopyLoginPasswordAsync(Func<string, Task> setClipboard, AccountViewModel? account = null)
     {
         account ??= Selected;
@@ -386,10 +386,10 @@ public sealed class MainViewModel : ObservableObject
         if (account.Password is { } password)
             await CopyAsync(setClipboard, $"{account.Name}:{password}", "log:pass скопирован");
         else
-            await CopyAsync(setClipboard, account.Name, "Пароля нет — скопирован логин");
+            AskPassword(account, AfterPassword.CopyLoginPassword, setClipboard);
     }
 
-    /// <summary>Copies only the password; without a saved password just says so.</summary>
+    /// <summary>Copies only the password; without a saved password asks for it once, then copies.</summary>
     public async Task CopyPasswordAsync(Func<string, Task> setClipboard, AccountViewModel? account = null)
     {
         account ??= Selected;
@@ -398,7 +398,7 @@ public sealed class MainViewModel : ObservableObject
         if (account.Password is { } password)
             await CopyAsync(setClipboard, password, "Пароль скопирован");
         else
-            ShowHint("Пароль не сохранён", 2500);
+            AskPassword(account, AfterPassword.CopyPassword, setClipboard);
     }
 
     private async Task CopyAsync(Func<string, Task> setClipboard, string? text, string hint)
@@ -408,30 +408,84 @@ public sealed class MainViewModel : ObservableObject
         ShowHint(hint);
     }
 
-    // ---------- Saved password ----------
+    // ---------- Password prompt (shown once per account) ----------
 
-    public bool EditingPassword
+    private AccountViewModel? _promptAccount;
+    private string _promptPassword = "";
+    private AfterPassword _afterPrompt;
+    private Func<string, Task>? _promptClipboard;
+
+    /// <summary>Account whose password the dialog asks for; null when the dialog is closed.</summary>
+    public AccountViewModel? PromptAccount
     {
-        get => _editingPassword;
-        set
+        get => _promptAccount;
+        private set
         {
-            if (!Set(ref _editingPassword, value)) return;
-            NewPassword = value ? Selected?.Password ?? "" : "";
+            if (Set(ref _promptAccount, value)) Raise(nameof(IsPrompting), nameof(PromptText));
         }
     }
 
-    public string NewPassword
+    public bool IsPrompting => PromptAccount is not null;
+
+    public string PromptPassword
     {
-        get => _newPassword;
-        set => Set(ref _newPassword, value);
+        get => _promptPassword;
+        set => Set(ref _promptPassword, value);
     }
 
-    public void SaveNewPassword()
+    public string PromptText => PromptAccount switch
     {
-        var password = NewPassword;
-        Selected?.SetPassword(password);
-        EditingPassword = false;
-        ShowHint(string.IsNullOrEmpty(password) ? "Пароль удалён" : "Пароль сохранён");
+        null => "",
+        { HasPassword: true, Password: null } =>
+            "Папка maFiles перенесена с другого компьютера: сохранённые там пароли здесь не расшифровать. " +
+            "Введите пароль один раз — дальше копирование будет сразу.",
+        { Password: null } =>
+            "Пароль этого аккаунта ещё не сохранён — например, maFile добавлен из другой папки. " +
+            "Введите его один раз — дальше копирование будет сразу.",
+        _ => "Новый пароль заменит сохранённый. Оставьте поле пустым, чтобы удалить пароль.",
+    };
+
+    /// <summary>Opens the password dialog; <paramref name="after"/> runs once the password is saved.</summary>
+    public void AskPassword(AccountViewModel account, AfterPassword after = AfterPassword.None,
+        Func<string, Task>? setClipboard = null)
+    {
+        _afterPrompt = after;
+        _promptClipboard = setClipboard;
+        PromptPassword = account.Password ?? "";
+        PromptAccount = account;
+    }
+
+    public async Task SavePromptAsync()
+    {
+        if (PromptAccount is not { } account) return;
+        var password = PromptPassword;
+        if (string.IsNullOrEmpty(password) && _afterPrompt != AfterPassword.None) return;
+
+        account.SetPassword(password);
+        var after = _afterPrompt;
+        var clipboard = _promptClipboard;
+        CancelPrompt();
+
+        switch (after)
+        {
+            case AfterPassword.CopyPassword when clipboard is not null:
+                await CopyAsync(clipboard, password, "Пароль сохранён и скопирован");
+                break;
+            case AfterPassword.CopyLoginPassword when clipboard is not null:
+                await CopyAsync(clipboard, $"{account.Name}:{password}", "Пароль сохранён, log:pass скопирован");
+                break;
+            default:
+                ShowHint(string.IsNullOrEmpty(password) ? "Пароль удалён" : "Пароль сохранён");
+                break;
+        }
+    }
+
+    public void CancelPrompt()
+    {
+        PromptAccount = null;
+        PromptPassword = "";
+        _afterPrompt = AfterPassword.None;
+        _promptClipboard = null;
     }
 
     private void ApplyFilter()
