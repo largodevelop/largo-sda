@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LargoSda.App.CodeInput"
+             Cursor="Ibeam">
+  <UserControl.Styles>
+    <Style Selector="Border.cell">
+      <Setter Property="Width" Value="44" />
+      <Setter Property="Height" Value="46" />
+      <Setter Property="Margin" Value="7,0" />
+      <Setter Property="BorderBrush" Value="#3F3F46" />
+      <Setter Property="BorderThickness" Value="0,0,0,2" />
+    </Style>
+    <Style Selector="Border.cell.active">
+      <Setter Property="BorderBrush" Value="{StaticResource Brand}" />
+    </Style>
+    <Style Selector="Border.cell TextBlock">
+      <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+      <Setter Property="FontSize" Value="24" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+
+  <Panel>
+    <StackPanel x:Name="Cells" Orientation="Horizontal" HorizontalAlignment="Center" />
+    <!-- Invisible input that receives typing / paste; the cells above only display it -->
+    <TextBox x:Name="Input" Opacity="0" MaxLength="5" Background="Transparent" BorderThickness="0"
+             CaretBrush="Transparent" SelectionBrush="Transparent" AutomationProperties.Name="Код" />
+  </Panel>
+</UserControl>

@@ -1,0 +1,275 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="LargoSda.App.App"
+             RequestedThemeVariant="Dark">
+
+  <!-- Largo Develop palette (docs/LARGO_BRAND_PROMPT.md, desktop app tokens) -->
+  <Application.Resources>
+    <Color x:Key="BgColor">#0F0F0F</Color>
+    <SolidColorBrush x:Key="Bg" Color="#0F0F0F" />
+    <SolidColorBrush x:Key="BgRaised" Color="#161616" />
+    <SolidColorBrush x:Key="BgInput" Color="#1C1C1C" />
+    <SolidColorBrush x:Key="BgHover" Color="#0AFFFFFF" />
+    <SolidColorBrush x:Key="BgSelected" Color="#10FFFFFF" />
+    <SolidColorBrush x:Key="Line" Color="#14FFFFFF" />
+    <SolidColorBrush x:Key="LineStrong" Color="#27272A" />
+    <SolidColorBrush x:Key="Text" Color="#F4F4F5" />
+    <SolidColorBrush x:Key="TextSecondary" Color="#D4D4D8" />
+    <SolidColorBrush x:Key="TextDim" Color="#A1A1AA" />
+    <SolidColorBrush x:Key="TextMuted" Color="#71717A" />
+    <SolidColorBrush x:Key="TextFaint" Color="#52525B" />
+    <SolidColorBrush x:Key="Brand" Color="#EFA3BE" />
+    <SolidColorBrush x:Key="Lamp" Color="#3DFF8A" />
+    <SolidColorBrush x:Key="Danger" Color="#FF6B6B" />
+    <SolidColorBrush x:Key="Warn" Color="#C4A574" />
+    <SolidColorBrush x:Key="BtnSolid" Color="#CCE4E4E7" />
+    <SolidColorBrush x:Key="BtnSolidHover" Color="#EBF4F4F5" />
+    <SolidColorBrush x:Key="BtnSolidText" Color="#18181B" />
+
+    <FontFamily x:Key="Mono">avares://LargoSDA/Assets/Fonts#JetBrains Mono, Consolas, monospace</FontFamily>
+
+    <!-- Fluent overrides: inputs and accent -->
+    <Color x:Key="SystemAccentColor">#EFA3BE</Color>
+    <SolidColorBrush x:Key="TextControlBackground" Color="#1C1C1C" />
+    <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#1C1C1C" />
+    <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#1C1C1C" />
+    <SolidColorBrush x:Key="TextControlBorderBrush" Color="#27272A" />
+    <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#3F3F46" />
+    <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#52525B" />
+    <SolidColorBrush x:Key="TextControlForeground" Color="#F4F4F5" />
+    <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#F4F4F5" />
+    <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#F4F4F5" />
+    <SolidColorBrush x:Key="TextControlPlaceholderForeground" Color="#71717A" />
+    <SolidColorBrush x:Key="TextControlPlaceholderForegroundPointerOver" Color="#71717A" />
+    <SolidColorBrush x:Key="TextControlPlaceholderForegroundFocused" Color="#52525B" />
+    <SolidColorBrush x:Key="TextControlSelectionHighlightColor" Color="#55EFA3BE" />
+    <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <Style Selector="Window">
+      <Setter Property="Background" Value="{StaticResource Bg}" />
+      <Setter Property="Foreground" Value="{StaticResource Text}" />
+      <Setter Property="FontSize" Value="12.5" />
+    </Style>
+
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontSize" Value="10" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="LetterSpacing" Value="0.8" />
+      <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+    </Style>
+    <Style Selector="TextBlock.mono">
+      <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+    </Style>
+    <Style Selector="TextBlock.h1">
+      <Setter Property="FontSize" Value="18" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="LetterSpacing" Value="-0.4" />
+    </Style>
+
+    <!-- Inputs: 6px radius, thin border, no Fluent underline -->
+    <Style Selector="TextBox">
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="MinHeight" Value="28" />
+      <Setter Property="Padding" Value="9,4" />
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Buttons: outline (secondary) and solid (primary) — 6px, no pills -->
+    <Style Selector="Button.outline, Button.solid, Button.ghost">
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="Medium" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.outline">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+      <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+    </Style>
+    <Style Selector="Button.outline:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#E4E4E7" />
+      <Setter Property="BorderBrush" Value="#E4E4E7" />
+      <Setter Property="Foreground" Value="{StaticResource BtnSolidText}" />
+    </Style>
+    <Style Selector="Button.solid">
+      <Setter Property="Background" Value="{StaticResource BtnSolid}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource BtnSolidText}" />
+    </Style>
+    <Style Selector="Button.solid:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BtnSolidHover}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource BtnSolidText}" />
+    </Style>
+    <Style Selector="Button.outline:pressed, Button.solid:pressed">
+      <Setter Property="RenderTransform" Value="none" />
+      <Setter Property="Opacity" Value="0.85" />
+    </Style>
+    <Style Selector="Button.outline:disabled /template/ ContentPresenter#PART_ContentPresenter, Button.solid:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Opacity" Value="0.4" />
+    </Style>
+    <Style Selector="Button.solid:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BtnSolid}" />
+      <Setter Property="Foreground" Value="{StaticResource BtnSolidText}" />
+    </Style>
+    <Style Selector="Button.outline:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+    </Style>
+
+    <!-- Ghost: borderless text button (folder path, code card) -->
+    <Style Selector="Button.ghost">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource TextDim}" />
+    </Style>
+    <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BgHover}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource Text}" />
+    </Style>
+    <Style Selector="Button.ghost:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BgSelected}" />
+    </Style>
+
+    <!-- Sidebar navigation -->
+    <Style Selector="Button.nav">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Height" Value="32" />
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{StaticResource TextDim}" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.nav:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BgHover}" />
+      <Setter Property="Foreground" Value="{StaticResource Text}" />
+    </Style>
+    <Style Selector="Button.nav.active">
+      <Setter Property="Background" Value="{StaticResource BgSelected}" />
+      <Setter Property="Foreground" Value="{StaticResource Text}" />
+    </Style>
+    <Style Selector="Button.nav.active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BgSelected}" />
+    </Style>
+
+    <!-- Eye toggle inside password fields -->
+    <Style Selector="ToggleButton.eye">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="8,0" />
+      <Setter Property="Margin" Value="0,0,2,0" />
+      <Setter Property="MinHeight" Value="26" />
+      <Setter Property="Foreground" Value="{StaticResource TextMuted}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ToggleButton.eye:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.eye:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.eye:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource Text}" />
+    </Style>
+
+    <!-- Window caption buttons -->
+    <Style Selector="Button.caption">
+      <Setter Property="Width" Value="42" />
+      <Setter Property="Height" Value="34" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{StaticResource TextDim}" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.caption:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#14FFFFFF" />
+      <Setter Property="Foreground" Value="{StaticResource Text}" />
+    </Style>
+    <Style Selector="Button.caption.close:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#C42B1C" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <!-- Line icons follow the button's text colour -->
+    <Style Selector="Path.icon">
+      <Setter Property="StrokeThickness" Value="1.4" />
+      <Setter Property="StrokeLineCap" Value="Round" />
+      <Setter Property="StrokeJoin" Value="Round" />
+      <Setter Property="Stretch" Value="None" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Table-like account list -->
+    <Style Selector="ListBox.table">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ListBox.table ListBoxItem">
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="MinHeight" Value="38" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="ListBox.table ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BgHover}" />
+    </Style>
+    <Style Selector="ListBox.table ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BgSelected}" />
+    </Style>
+    <Style Selector="ListBox.table ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BgSelected}" />
+    </Style>
+    <Style Selector="ListBox.table ListBoxItem:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource BgSelected}" />
+    </Style>
+    <Style Selector="ListBox.compact ListBoxItem">
+      <Setter Property="MinHeight" Value="34" />
+    </Style>
+
+    <!-- Code countdown -->
+    <Style Selector="ProgressBar.countdown">
+      <Setter Property="Height" Value="3" />
+      <Setter Property="MinHeight" Value="3" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="Background" Value="#262626" />
+      <Setter Property="Foreground" Value="{StaticResource Brand}" />
+    </Style>
+    <Style Selector="ProgressBar.countdown.expiring">
+      <Setter Property="Foreground" Value="{StaticResource Warn}" />
+    </Style>
+
+    <!-- Brand mark (pale raspberry): drop-shadow follows the PNG alpha; only the glow breathes, never the size -->
+    <Style Selector="Image.brand-mark">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="Image.brand-mark.online">
+      <Setter Property="Opacity" Value="1" />
+      <Setter Property="Effect" Value="drop-shadow(0 0 12 #6BE65C8C)" />
+      <Style.Animations>
+        <Animation Duration="0:0:3.6" IterationCount="Infinite" Easing="SineEaseInOut">
+          <KeyFrame Cue="0%">
+            <Setter Property="Effect" Value="drop-shadow(0 0 8 #38E65C8C)" />
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="Effect" Value="drop-shadow(0 0 14 #80E65C8C)" />
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Effect" Value="drop-shadow(0 0 8 #38E65C8C)" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </Application.Styles>
+</Application>

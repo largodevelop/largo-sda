@@ -1,0 +1,538 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:app="using:LargoSda.App"
+        x:Class="LargoSda.App.MainWindow"
+        x:DataType="app:MainViewModel"
+        Title="Largo SDA"
+        Icon="/Assets/app.ico"
+        Width="900" Height="580" MinWidth="720" MinHeight="440"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="34">
+
+  <Window.Styles>
+    <!-- maFiles drop zone: dashed frame, lights up while something is dragged over the window -->
+    <Style Selector="Rectangle.drop-frame">
+      <Setter Property="Stroke" Value="{StaticResource LineStrong}" />
+      <Setter Property="StrokeThickness" Value="1" />
+      <Setter Property="StrokeDashArray" Value="4,3" />
+      <Setter Property="RadiusX" Value="6" />
+      <Setter Property="RadiusY" Value="6" />
+      <Setter Property="Fill" Value="Transparent" />
+    </Style>
+    <Style Selector="Rectangle.drop-frame.dragging">
+      <Setter Property="Stroke" Value="{StaticResource Brand}" />
+      <Setter Property="Fill" Value="#14EFA3BE" />
+    </Style>
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{StaticResource BgRaised}" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    <!-- Steam-like code entry block -->
+    <Style Selector="Border.code-card">
+      <Setter Property="Background" Value="#1C1C1F" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="20,18" />
+    </Style>
+    <Style Selector="Border.code-well">
+      <Setter Property="Background" Value="#141416" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="16,12,16,14" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Path.code-icon">
+      <Setter Property="Stroke" Value="{StaticResource Brand}" />
+      <Setter Property="StrokeThickness" Value="2" />
+      <Setter Property="StrokeLineCap" Value="Round" />
+      <Setter Property="StrokeJoin" Value="Round" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.choice">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Padding" Value="16,14" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Background" Value="#1C1C1F" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Foreground" Value="{StaticResource Text}" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.choice:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#232327" />
+      <Setter Property="BorderBrush" Value="{StaticResource Brand}" />
+      <Setter Property="Foreground" Value="{StaticResource Text}" />
+    </Style>
+    <Style Selector="Border.tag">
+      <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="7,2" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="34,*" DragDrop.AllowDrop="True">
+
+    <!-- ============ Titlebar ============ -->
+    <Border Grid.Row="0" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
+      <Grid x:Name="TitleBar" Background="{StaticResource Bg}" ColumnDefinitions="*,Auto,*"
+            PointerPressed="OnTitleBarPressed" DoubleTapped="OnTitleBarDoubleTapped">
+        <TextBlock Classes="mono" Text="{Binding Version}" FontSize="11" Margin="14,0"
+                   Foreground="{StaticResource TextFaint}" VerticalAlignment="Center" IsHitTestVisible="False" />
+
+        <Image Grid.Column="1" Source="/Assets/brand.png" Width="18" Height="18" IsHitTestVisible="False"
+               Classes="brand-mark" Classes.online="{Binding TimeSynced}"
+               ToolTip.Tip="{Binding TimeStatus}" />
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Classes="caption" Click="OnMinimize" ToolTip.Tip="Свернуть">
+            <Path Classes="icon" Data="M0,0.5 H10" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" />
+          </Button>
+          <Button Classes="caption" Click="OnMaximize" ToolTip.Tip="Развернуть">
+            <Path Classes="icon" Data="M0.5,0.5 H9.5 V9.5 H0.5 Z" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" />
+          </Button>
+          <Button Classes="caption close" Click="OnClose" ToolTip.Tip="Закрыть">
+            <Path Classes="icon" Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid Grid.Row="1" ColumnDefinitions="176,*">
+
+      <!-- ============ Sidebar ============ -->
+      <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0">
+        <DockPanel Margin="10,14,10,10">
+          <TextBlock DockPanel.Dock="Top" Text="Largo SDA" FontSize="14" FontWeight="SemiBold" Margin="10,0,0,16" />
+          <TextBlock DockPanel.Dock="Top" Classes="label" Text="РАБОТА" Margin="10,0,0,6" />
+
+          <StackPanel DockPanel.Dock="Top" Spacing="2">
+            <Button Classes="nav" Classes.active="{Binding IsCodesPage}" Click="OnShowCodes" AutomationProperties.Name="Коды">
+              <Grid ColumnDefinitions="Auto,*,Auto">
+                <Path Classes="icon" Stroke="{Binding $parent[Button].Foreground}"
+                      Data="M8,1.5 L13.5,3.5 V8 C13.5,11 11,13.3 8,14.5 C5,13.3 2.5,11 2.5,8 V3.5 Z M5.6,8 L7.3,9.7 L10.6,6.4" />
+                <TextBlock Grid.Column="1" Text="Коды" Margin="10,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="2" Classes="mono" Text="{Binding AccountCount}" FontSize="11"
+                           Foreground="{StaticResource Brand}" VerticalAlignment="Center" />
+              </Grid>
+            </Button>
+            <Button Classes="nav" Classes.active="{Binding IsConfirmationsPage}" Click="OnShowConfirmations" AutomationProperties.Name="Подтверждения">
+              <Grid ColumnDefinitions="Auto,*">
+                <Path Classes="icon" Stroke="{Binding $parent[Button].Foreground}"
+                      Data="M2.5,4.5 H13.5 M2.5,8 H13.5 M2.5,11.5 H8.5 M10.5,11.5 L12,13 L14.5,10.5" />
+                <TextBlock Grid.Column="1" Text="Подтверждения" Margin="10,0,0,0" VerticalAlignment="Center" />
+              </Grid>
+            </Button>
+          </StackPanel>
+
+          <!-- Bottom: the maFiles folder (own folder next to the exe by default) -->
+          <Panel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+            <Rectangle Classes="drop-frame" Classes.dragging="{Binding IsDragging}" />
+            <StackPanel Margin="4" Spacing="2">
+            <Button Classes="ghost" Height="NaN" Padding="6,5" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left" ToolTip.Tip="{Binding Folder}"
+                    AutomationProperties.Name="Папка maFiles">
+              <Button.Flyout>
+                <MenuFlyout Placement="TopEdgeAlignedLeft">
+                  <MenuItem Header="Открыть папку" Click="OnOpenFolder" />
+                  <MenuItem Header="Добавить аккаунты из другой папки…" Click="OnImportFolder" />
+                  <Separator />
+                  <MenuItem Header="Работать с другой папкой…" Click="OnPickFolder" />
+                  <MenuItem Header="Своя папка программы" Click="OnResetFolder" IsVisible="{Binding !IsDefaultFolder}" />
+                </MenuFlyout>
+              </Button.Flyout>
+              <Grid ColumnDefinitions="Auto,*">
+                <Path Classes="icon" Stroke="{Binding $parent[Button].Foreground}"
+                      Data="M1.5,4 H6 L7.5,5.5 H14.5 V13 H1.5 Z" />
+                <StackPanel Grid.Column="1" Margin="10,0,0,0" Spacing="1">
+                  <TextBlock Text="Папка maFiles" FontSize="12.5" />
+                  <TextBlock Classes="mono" Text="{Binding FolderLabel}" FontSize="10"
+                             Foreground="{StaticResource TextFaint}" TextTrimming="LeadingCharacterEllipsis" />
+                </StackPanel>
+              </Grid>
+            </Button>
+            <TextBlock FontSize="10.5" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap" Margin="6,0,6,5"
+                       IsVisible="{Binding !HasNotice}"
+                       Text="Перетащите сюда другую папку maFiles — аккаунты добавятся к вашим" />
+            <TextBlock FontSize="10.5" Foreground="{StaticResource Brand}" TextWrapping="Wrap" Margin="6,0,6,5"
+                       IsVisible="{Binding HasNotice}" Text="{Binding Notice}" />
+            </StackPanel>
+          </Panel>
+          <Panel />
+        </DockPanel>
+      </Border>
+
+      <!-- ============ Main ============ -->
+      <DockPanel Grid.Column="1" Margin="18,14,18,12">
+
+        <!-- Header -->
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto" Margin="0,0,0,12">
+          <TextBlock Classes="h1" VerticalAlignment="Center"
+                     Text="{Binding IsCodesPage, Converter={x:Static app:Converters.PageTitle}}" />
+          <Border Grid.Column="1" Classes="tag" Background="{StaticResource BgSelected}" BorderThickness="0"
+                  Margin="10,0,0,0" Padding="8,3">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Text="Все" FontSize="12" />
+              <TextBlock Classes="mono" Text="{Binding AccountCount}" FontSize="12" Foreground="{StaticResource Brand}" />
+            </StackPanel>
+          </Border>
+          <TextBox Grid.Column="3" Width="170" Watermark="Поиск" Text="{Binding Search}" />
+          <Button Grid.Column="4" Classes="outline" Margin="6,0,0,0" Content="+ Аккаунт" Click="OnAddAccount"
+                  ToolTip.Tip="Привязать мобильный Guard к аккаунту Steam" />
+          <Button Grid.Column="5" Classes="outline" Margin="6,0,0,0" Content="Обновить" Click="OnReload" />
+        </Grid>
+
+        <!-- Status line -->
+        <TextBlock DockPanel.Dock="Bottom" Margin="0,10,0,0" FontSize="12" Foreground="{StaticResource Warn}"
+                   TextTrimming="CharacterEllipsis" Text="{Binding Status}"
+                   IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+        <Panel>
+          <!-- ===== Codes page ===== -->
+          <Grid ColumnDefinitions="*,244" IsVisible="{Binding IsCodesPage}">
+            <DockPanel>
+              <Grid DockPanel.Dock="Top" ColumnDefinitions="*,76" Margin="10,0,10,6">
+                <TextBlock Classes="label" Text="ЛОГИН" Margin="6,0,0,0" />
+                <TextBlock Grid.Column="1" Classes="label" Text="КОД" />
+              </Grid>
+              <Border DockPanel.Dock="Top" Height="1" Background="{StaticResource Line}" />
+              <ListBox Classes="table" ItemsSource="{Binding Accounts}" SelectedItem="{Binding Selected}"
+                       DoubleTapped="OnCopy">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="app:AccountViewModel">
+                    <Grid ColumnDefinitions="*,76" Background="Transparent">
+                      <Grid.ContextMenu>
+                        <ContextMenu>
+                          <MenuItem Header="Скопировать код" Click="OnMenuCopyCode" />
+                          <MenuItem Header="Скопировать логин" Click="OnMenuCopyLogin" />
+                          <MenuItem Header="Скопировать log:pass" Click="OnMenuCopyLoginPass" />
+                          <Separator />
+                          <MenuItem Header="Задать пароль…" Click="OnMenuEditPassword" />
+                          <MenuItem Header="Подтверждения" Click="OnMenuConfirmations" />
+                        </ContextMenu>
+                      </Grid.ContextMenu>
+                      <TextBlock Text="{Binding Name}" FontSize="13" TextTrimming="CharacterEllipsis"
+                                 VerticalAlignment="Center" Margin="6,0,0,0" />
+                      <TextBlock Grid.Column="1" Classes="mono" Text="{Binding Code}" FontSize="13" FontWeight="Bold"
+                                 LetterSpacing="1.5" VerticalAlignment="Center" />
+                    </Grid>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </DockPanel>
+
+            <!-- Code card -->
+            <ScrollViewer Grid.Column="1" Margin="14,0,0,0" VerticalScrollBarVisibility="Auto">
+            <Border Classes="card" VerticalAlignment="Top" Padding="16,14,16,14"
+                    IsVisible="{Binding HasSelection}">
+              <StackPanel Spacing="4">
+                <TextBlock Classes="label" Text="STEAM GUARD" />
+                <TextBlock Text="{Binding Selected.Name}" FontSize="15" FontWeight="SemiBold"
+                           TextTrimming="CharacterEllipsis" Margin="0,4,0,0" />
+
+                <Button Classes="ghost" Height="NaN" Padding="0,8" Margin="0,8,0,0" HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center" Click="OnCopy" ToolTip.Tip="Скопировать код">
+                  <TextBlock Classes="mono" Text="{Binding Selected.Code}" FontSize="32" FontWeight="Bold"
+                             LetterSpacing="5" Foreground="{StaticResource Text}" />
+                </Button>
+
+                <ProgressBar Classes="countdown" Classes.expiring="{Binding IsExpiring}"
+                             Minimum="0" Maximum="30" Value="{Binding SecondsLeft}" Margin="0,6,0,0" />
+                <Panel Margin="0,6,0,10">
+                  <TextBlock FontSize="12" Foreground="{StaticResource TextMuted}" IsVisible="{Binding !HasCopyHint}"
+                             Text="{Binding SecondsLeft, StringFormat='Сменится через {0} с'}" />
+                  <TextBlock FontSize="12" Foreground="{StaticResource Brand}" Text="{Binding CopyHint}"
+                             TextTrimming="CharacterEllipsis" IsVisible="{Binding HasCopyHint}" />
+                </Panel>
+
+                <Button Classes="solid" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Content="Скопировать код" Click="OnCopy" />
+                <Grid ColumnDefinitions="*,6,Auto" Margin="0,6,0,0">
+                  <Button Classes="outline" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                          Content="log:pass" Click="OnCopyLoginPass"
+                          ToolTip.Tip="Скопировать логин:пароль" />
+                  <Button Grid.Column="2" Classes="outline" Padding="8,0" Click="OnEditPassword" AutomationProperties.Name="Изменить пароль"
+                          ToolTip.Tip="Задать или изменить пароль">
+                    <Path Classes="icon" Stroke="{Binding $parent[Button].Foreground}"
+                          Data="M10.5,2.5 L13.5,5.5 L6,13 H3 V10 Z M9,4 L12,7" />
+                  </Button>
+                </Grid>
+
+                <!-- Password editor -->
+                <Border Classes="card" Background="{StaticResource Bg}" Padding="10" Margin="0,6,0,0"
+                        IsVisible="{Binding EditingPassword}">
+                  <StackPanel Spacing="8">
+                    <TextBlock Classes="label" Text="ПАРОЛЬ STEAM" />
+                    <TextBox x:Name="NewPasswordBox" PasswordChar="•" RevealPassword="{Binding #RevealToggle.IsChecked}" Watermark="Пароль"
+                             Text="{Binding NewPassword}" KeyDown="OnNewPasswordKeyDown">
+                      <TextBox.InnerRightContent>
+                        <ToggleButton x:Name="RevealToggle" Classes="eye" ToolTip.Tip="Показать пароль"
+                                      AutomationProperties.Name="Показать пароль">
+                          <Path Classes="icon" Stroke="{Binding $parent[ToggleButton].Foreground}"
+                                Data="M1.5,8 C3.5,4.5 5.6,3 8,3 C10.4,3 12.5,4.5 14.5,8 C12.5,11.5 10.4,13 8,13 C5.6,13 3.5,11.5 1.5,8 Z M8,6 A2,2 0 1 1 7.99,6 Z" />
+                        </ToggleButton>
+                      </TextBox.InnerRightContent>
+                    </TextBox>
+                    <Grid ColumnDefinitions="*,6,*">
+                      <Button Classes="outline" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                              Content="Отмена" Click="OnCancelPassword" />
+                      <Button Grid.Column="2" Classes="solid" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                              Content="Сохранить" Click="OnSavePassword" />
+                    </Grid>
+                    <TextBlock FontSize="11" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"
+                               Text="Шифруется Windows (DPAPI), лежит в папке maFiles." />
+                  </StackPanel>
+                </Border>
+
+                <Button Classes="outline" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Margin="0,6,0,0" Content="Подтверждения" Click="OnShowConfirmations" />
+              </StackPanel>
+            </Border>
+            </ScrollViewer>
+          </Grid>
+
+          <!-- ===== Confirmations page ===== -->
+          <Grid ColumnDefinitions="190,*" IsVisible="{Binding IsConfirmationsPage}">
+            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0" Padding="0,0,10,0">
+              <ListBox Classes="table compact" ItemsSource="{Binding Accounts}" SelectedItem="{Binding Selected}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="app:AccountViewModel">
+                    <TextBlock Text="{Binding Name}" FontSize="13" TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center" Margin="6,0,0,0" />
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Border>
+
+            <DockPanel Grid.Column="1" Margin="14,0,0,0" IsVisible="{Binding HasSelection}">
+              <!-- Toolbar -->
+              <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto,Auto" Margin="0,0,0,10">
+                <StackPanel VerticalAlignment="Center" Spacing="2">
+                  <TextBlock Text="{Binding Selected.Name}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                  <TextBlock Classes="mono" FontSize="11" Foreground="{StaticResource TextMuted}"
+                             Text="{Binding Confirmations.Count, StringFormat='ожидают: {0}'}" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="outline" Content="Обновить" Click="OnRefreshConfirmations"
+                        IsEnabled="{Binding !ConfBusy}" />
+                <Button Grid.Column="2" Classes="outline" Margin="6,0,0,0" Content="Отклонить все"
+                        Click="OnDenyAll" IsEnabled="{Binding CanAct}" />
+                <Button Grid.Column="3" Classes="solid" Margin="6,0,0,0" Content="Принять все"
+                        Click="OnAcceptAll" IsEnabled="{Binding CanAct}" />
+              </Grid>
+
+              <TextBlock DockPanel.Dock="Top" Text="{Binding ConfError}" Foreground="{StaticResource Danger}"
+                         FontSize="12.5" TextWrapping="Wrap" Margin="0,0,0,12" IsVisible="{Binding HasConfError}" />
+
+              <Panel>
+                <!-- Login -->
+                <Border Classes="card" Padding="16" VerticalAlignment="Top" MaxWidth="400" HorizontalAlignment="Left"
+                        IsVisible="{Binding NeedsLogin}">
+                  <StackPanel Spacing="10">
+                    <TextBlock Text="Вход в Steam" FontSize="14" FontWeight="SemiBold" />
+                    <TextBlock FontSize="12.5" Foreground="{StaticResource TextDim}" TextWrapping="Wrap"
+                               Text="Нужен один раз для этого аккаунта. Код Steam Guard подставится сам, сессия сохранится в maFile. Пароль сохраняется, только если отмечено «Запомнить пароль»." />
+                    <TextBox Classes="mono" Text="{Binding Selected.Name}" IsReadOnly="True" Margin="0,4,0,0" />
+                    <TextBox PasswordChar="•" Watermark="Пароль Steam" Text="{Binding Password}" KeyDown="OnPasswordKeyDown" />
+                    <Grid ColumnDefinitions="*,Auto">
+                      <CheckBox Content="Запомнить пароль" FontSize="12.5" IsChecked="{Binding RememberPassword}" />
+                      <Button Grid.Column="1" Classes="solid" Content="Войти" Click="OnLogin" IsEnabled="{Binding !ConfBusy}" />
+                    </Grid>
+                  </StackPanel>
+                </Border>
+
+                <!-- Loading / empty -->
+                <TextBlock Text="Загрузка…" Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" IsVisible="{Binding ConfBusy}" />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6" IsVisible="{Binding ShowEmpty}">
+                  <TextBlock Text="Подтверждений нет" FontSize="15" HorizontalAlignment="Center" />
+                  <TextBlock Text="Новые обмены и лоты маркета появятся здесь" FontSize="12.5"
+                             Foreground="{StaticResource TextMuted}" HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- List -->
+                <ScrollViewer IsVisible="{Binding ShowList}">
+                  <ItemsControl ItemsSource="{Binding Confirmations}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Spacing="8" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="app:ConfirmationViewModel">
+                        <Border Classes="card" Padding="12,10">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Spacing="5">
+                              <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Border Classes="tag">
+                                  <TextBlock Classes="mono" Text="{Binding Kind}" FontSize="10.5"
+                                             Foreground="{StaticResource TextDim}" />
+                                </Border>
+                                <TextBlock Classes="mono" Text="{Binding Time}" FontSize="11"
+                                           Foreground="{StaticResource TextFaint}" VerticalAlignment="Center" />
+                              </StackPanel>
+                              <TextBlock Text="{Binding Headline}" FontSize="13" FontWeight="SemiBold"
+                                         TextTrimming="CharacterEllipsis" />
+                              <TextBlock Text="{Binding Summary}" FontSize="12.5" Foreground="{StaticResource TextDim}"
+                                         TextWrapping="Wrap" IsVisible="{Binding HasSummary}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="16,0,0,0"
+                                        VerticalAlignment="Center">
+                              <Button Classes="outline" Content="Отклонить" Click="OnDeny" IsEnabled="{Binding !IsBusy}" />
+                              <Button Classes="solid" Content="Принять" Click="OnAccept" IsEnabled="{Binding !IsBusy}" />
+                            </StackPanel>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+              </Panel>
+            </DockPanel>
+          </Grid>
+        </Panel>
+      </DockPanel>
+    </Grid>
+
+    <!-- ============ Link wizard (overlay) ============ -->
+    <Grid Grid.Row="1" Background="#B8000000" IsVisible="{Binding IsLinking}">
+      <Border Classes="card" Background="#121214" Width="420" Padding="20" VerticalAlignment="Center"
+              DataContext="{Binding Link}" x:DataType="app:LinkViewModel">
+        <StackPanel Spacing="12">
+          <StackPanel.Styles>
+            <Style Selector="TextBlock">
+              <Setter Property="TextAlignment" Value="Center" />
+            </Style>
+            <Style Selector="TextBox">
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+            </Style>
+          </StackPanel.Styles>
+
+          <Panel>
+            <StackPanel Spacing="2" HorizontalAlignment="Center">
+              <TextBlock Classes="label" Text="НОВЫЙ АККАУНТ" />
+              <TextBlock Text="{Binding Title}" FontSize="17" FontWeight="SemiBold" />
+            </StackPanel>
+            <Button Classes="caption" Width="32" Height="32" CornerRadius="6" Margin="0,-6,-8,0"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Click="OnLinkCancel" IsVisible="{Binding CanCancel}" ToolTip.Tip="Закрыть">
+              <Path Classes="icon" Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1.2" />
+            </Button>
+          </Panel>
+
+          <!-- Step 0: how to add -->
+          <StackPanel Spacing="8" IsVisible="{Binding IsChoose}">
+            <Button Classes="choice" Click="OnChooseLogin" AutomationProperties.Name="Через логин и пароль">
+              <Grid ColumnDefinitions="Auto,*">
+                <Path Classes="code-icon" Data="M9,3 A5,5 0 1 1 8.99,3 Z M1.5,25 C2.5,18.5 6,16 12,16 C18,16 21.5,18.5 22.5,25" />
+                <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="3">
+                  <TextBlock Text="Через логин и пароль" FontSize="14" FontWeight="SemiBold" TextAlignment="Left" />
+                  <TextBlock Text="Привязать мобильный Guard к аккаунту, где его ещё нет" FontSize="12"
+                             Foreground="{StaticResource TextDim}" TextWrapping="Wrap" TextAlignment="Left" />
+                </StackPanel>
+              </Grid>
+            </Button>
+            <Button Classes="choice" Click="OnChooseMaFile" AutomationProperties.Name="Из файла .maFile">
+              <Grid ColumnDefinitions="Auto,*">
+                <Path Classes="code-icon" Data="M4,1.5 H15 L21,7.5 V26.5 H4 Z M15,1.5 V7.5 H21 M8.5,14 H16.5 M8.5,19 H16.5" />
+                <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="3">
+                  <TextBlock Text="Из файла .maFile" FontSize="14" FontWeight="SemiBold" TextAlignment="Left" />
+                  <TextBlock Text="Выбрать готовый файл (или несколько) — он скопируется в вашу папку" FontSize="12"
+                             Foreground="{StaticResource TextDim}" TextWrapping="Wrap" TextAlignment="Left" />
+                </StackPanel>
+              </Grid>
+            </Button>
+          </StackPanel>
+
+          <!-- Step 1: credentials -->
+          <StackPanel Spacing="10" IsVisible="{Binding IsCredentials}">
+            <TextBlock FontSize="12.5" Foreground="{StaticResource TextDim}" TextWrapping="Wrap"
+                       Text="Войдите в аккаунт без мобильного Guard. Largo SDA станет его аутентификатором, maFile появится в текущей папке." />
+            <TextBox Watermark="Логин Steam" Text="{Binding Login}" />
+            <TextBox PasswordChar="•" Watermark="Пароль" Text="{Binding Password}" KeyDown="OnLinkKeyDown" />
+            <CheckBox Content="Запомнить пароль для log:pass" FontSize="12.5" HorizontalAlignment="Center"
+                      IsChecked="{Binding RememberPassword}" />
+          </StackPanel>
+
+          <!-- Step 2: email code for the login -->
+          <StackPanel Spacing="12" IsVisible="{Binding IsEmailCode}">
+            <TextBlock FontSize="15" Foreground="{StaticResource TextDim}">
+              <Run Text="Аккаунт: " /><Run Text="{Binding AccountLabel}" FontWeight="Bold" Foreground="{StaticResource Text}" />
+            </TextBlock>
+            <Border Classes="code-card">
+              <StackPanel Spacing="16">
+                <Border Classes="code-well">
+                  <app:CodeInput Text="{Binding Code}" Completed="OnCodeCompleted" IsVisible="{Binding IsEmailCode}" />
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center">
+                  <TextBlock Text="Введите код из письма Steam" FontSize="14" VerticalAlignment="Center" />
+                  <Path Classes="code-icon" Data="M2,5 H26 V21 H2 Z M2,5 L14,14 L26,5" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+            <TextBlock FontSize="12" Foreground="{StaticResource TextMuted}" TextWrapping="Wrap"
+                       Text="Письмо пришло на почту, привязанную к аккаунту. Проверьте папку «Спам», если его нет." />
+          </StackPanel>
+
+          <!-- Step 3: R-code + activation code -->
+          <StackPanel Spacing="10" IsVisible="{Binding IsActivation}">
+            <Border Classes="card" Background="{StaticResource Bg}" Padding="16">
+              <StackPanel Spacing="8">
+                <TextBlock Classes="label" Text="КОД ВОССТАНОВЛЕНИЯ" Foreground="{StaticResource Warn}" />
+                <SelectableTextBlock Classes="mono" Text="{Binding RevocationCode}" FontSize="28" FontWeight="Bold"
+                                     LetterSpacing="4" FontFamily="{StaticResource Mono}"
+                                     HorizontalAlignment="Center" TextAlignment="Center" />
+                <TextBlock FontSize="12" Foreground="{StaticResource TextDim}" TextWrapping="Wrap"
+                           Text="Запишите его. Только с ним можно снять Guard, если maFile потеряется. Он также сохранён в maFile." />
+                <Button Classes="outline" HorizontalAlignment="Center" Content="Скопировать R-код" Click="OnCopyRevocation" />
+              </StackPanel>
+            </Border>
+            <TextBlock FontSize="15" Foreground="{StaticResource TextDim}" Margin="0,4,0,0">
+              <Run Text="Аккаунт: " /><Run Text="{Binding AccountLabel}" FontWeight="Bold" Foreground="{StaticResource Text}" />
+            </TextBlock>
+            <Border Classes="code-card">
+              <StackPanel Spacing="16">
+                <Border Classes="code-well">
+                  <app:CodeInput Text="{Binding Code}" Completed="OnCodeCompleted" IsVisible="{Binding IsActivation}" />
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Center">
+                  <TextBlock Text="{Binding ActivationHint}" FontSize="14" TextWrapping="Wrap" MaxWidth="300"
+                             VerticalAlignment="Center" />
+                  <Path Classes="code-icon" Data="M2,5 H26 V21 H2 Z M2,5 L14,14 L26,5" IsVisible="{Binding !IsSms}" />
+                  <Path Classes="code-icon" IsVisible="{Binding IsSms}"
+                        Data="M8,1.5 H20 A2,2 0 0 1 22,3.5 V28.5 A2,2 0 0 1 20,30.5 H8 A2,2 0 0 1 6,28.5 V3.5 A2,2 0 0 1 8,1.5 Z M10.5,16 H11 M13.75,16 H14.25 M17,16 H17.5" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <!-- Step 4: done -->
+          <StackPanel Spacing="8" IsVisible="{Binding IsDone}">
+            <TextBlock Text="Guard привязан" FontSize="15" Foreground="{StaticResource Brand}" />
+            <TextBlock FontSize="12.5" Foreground="{StaticResource TextDim}" TextWrapping="Wrap"
+                       Text="Теперь коды для входа и подтверждения обменов берутся из Largo SDA. Сделайте копию папки maFiles." />
+            <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+              <TextBlock Classes="label" Text="КОД СЕЙЧАС" VerticalAlignment="Center" />
+              <TextBlock Classes="mono" Text="{Binding GuardCode}" FontSize="18" FontWeight="Bold" LetterSpacing="3" />
+            </StackPanel>
+          </StackPanel>
+
+          <TextBlock Text="{Binding Error}" Foreground="{StaticResource Danger}" FontSize="12.5" TextWrapping="Wrap"
+                     IsVisible="{Binding HasError}" />
+          <TextBlock Text="Подождите…" Foreground="{StaticResource TextMuted}" FontSize="12.5" IsVisible="{Binding Busy}" />
+
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,4,0,0">
+            <Button Classes="outline" Content="Отмена" Click="OnLinkCancel" IsVisible="{Binding CanCancel}" />
+            <Button Classes="solid" Click="OnLinkNext" IsEnabled="{Binding NotBusy}" IsVisible="{Binding !IsChoose}"
+                    Content="{Binding Step, Converter={x:Static app:Converters.LinkButton}}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Grid>
+</Window>

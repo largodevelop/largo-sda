@@ -1,0 +1,15 @@
+bin/
+obj/
+publish/
+.vs/
+.idea/
+*.user
+
+# Never commit Steam secrets
+*.maFile
+maFiles/
+manifest.json
+*.maFile.tmp
+passwords.dpapi.json
+LargoSDA.settings.json
+*.unfinished
