@@ -131,9 +131,14 @@ public partial class MainWindow : Window
         if (ViewModel is { } vm) await vm.CopyLoginPasswordAsync(SetClipboard);
     }
 
-    private void OnEditPassword(object? sender, RoutedEventArgs e)
+    private async void OnCopyLogin(object? sender, RoutedEventArgs e)
     {
-        if (ViewModel is { } vm) vm.EditingPassword = !vm.EditingPassword;
+        if (ViewModel is { } vm) await vm.CopyLoginAsync(SetClipboard);
+    }
+
+    private async void OnCopyPassword(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } vm) await vm.CopyPasswordAsync(SetClipboard);
     }
 
     private void OnSavePassword(object? sender, RoutedEventArgs e) => ViewModel?.SaveNewPassword();
@@ -159,6 +164,11 @@ public partial class MainWindow : Window
     private async void OnMenuCopyLogin(object? sender, RoutedEventArgs e)
     {
         if (ViewModel is { } vm) await vm.CopyLoginAsync(SetClipboard, AccountOf(sender));
+    }
+
+    private async void OnMenuCopyPassword(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } vm) await vm.CopyPasswordAsync(SetClipboard, AccountOf(sender));
     }
 
     private async void OnMenuCopyLoginPass(object? sender, RoutedEventArgs e)

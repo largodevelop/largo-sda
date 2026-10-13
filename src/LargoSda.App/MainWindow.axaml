@@ -52,6 +52,41 @@
       <Setter Property="StrokeJoin" Value="Round" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
+    <!-- Segmented "log : pass" control -->
+    <Style Selector="Border.segmented">
+      <Setter Property="BorderBrush" Value="{StaticResource LineStrong}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+    <Style Selector="Button.seg">
+      <Setter Property="Height" Value="28" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource TextSecondary}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="Medium" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.seg.left">
+      <Setter Property="CornerRadius" Value="5,0,0,5" />
+    </Style>
+    <Style Selector="Button.seg.right">
+      <Setter Property="CornerRadius" Value="0,5,5,0" />
+    </Style>
+    <Style Selector="Button.seg:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#E4E4E7" />
+      <Setter Property="Foreground" Value="{StaticResource BtnSolidText}" />
+    </Style>
+    <Style Selector="Button.seg:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#CCE4E4E7" />
+      <Setter Property="Foreground" Value="{StaticResource BtnSolidText}" />
+    </Style>
     <Style Selector="Button.choice">
       <Setter Property="HorizontalAlignment" Value="Stretch" />
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -91,13 +126,13 @@
                ToolTip.Tip="{Binding TimeStatus}" />
 
         <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
-          <Button Classes="caption" Click="OnMinimize" ToolTip.Tip="Свернуть">
+          <Button Classes="caption" Click="OnMinimize" ToolTip.Tip="Свернуть" AutomationProperties.Name="Свернуть">
             <Path Classes="icon" Data="M0,0.5 H10" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" />
           </Button>
-          <Button Classes="caption" Click="OnMaximize" ToolTip.Tip="Развернуть">
+          <Button Classes="caption" Click="OnMaximize" ToolTip.Tip="Развернуть" AutomationProperties.Name="Развернуть">
             <Path Classes="icon" Data="M0.5,0.5 H9.5 V9.5 H0.5 Z" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" />
           </Button>
-          <Button Classes="caption close" Click="OnClose" ToolTip.Tip="Закрыть">
+          <Button Classes="caption close" Click="OnClose" ToolTip.Tip="Закрыть" AutomationProperties.Name="Закрыть">
             <Path Classes="icon" Data="M0,0 L10,10 M10,0 L0,10" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" />
           </Button>
         </StackPanel>
@@ -211,6 +246,7 @@
                         <ContextMenu>
                           <MenuItem Header="Скопировать код" Click="OnMenuCopyCode" />
                           <MenuItem Header="Скопировать логин" Click="OnMenuCopyLogin" />
+                          <MenuItem Header="Скопировать пароль" Click="OnMenuCopyPassword" />
                           <MenuItem Header="Скопировать log:pass" Click="OnMenuCopyLoginPass" />
                           <Separator />
                           <MenuItem Header="Задать пароль…" Click="OnMenuEditPassword" />
@@ -253,16 +289,17 @@
 
                 <Button Classes="solid" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
                         Content="Скопировать код" Click="OnCopy" />
-                <Grid ColumnDefinitions="*,6,Auto" Margin="0,6,0,0">
-                  <Button Classes="outline" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                          Content="log:pass" Click="OnCopyLoginPass"
-                          ToolTip.Tip="Скопировать логин:пароль" />
-                  <Button Grid.Column="2" Classes="outline" Padding="8,0" Click="OnEditPassword" AutomationProperties.Name="Изменить пароль"
-                          ToolTip.Tip="Задать или изменить пароль">
-                    <Path Classes="icon" Stroke="{Binding $parent[Button].Foreground}"
-                          Data="M10.5,2.5 L13.5,5.5 L6,13 H3 V10 Z M9,4 L12,7" />
-                  </Button>
-                </Grid>
+                <!-- log : pass — three parts, each copies its own piece -->
+                <Border Classes="segmented" Margin="0,6,0,0">
+                  <Grid ColumnDefinitions="*,32,*">
+                    <Button Classes="seg left" Content="log" Click="OnCopyLogin"
+                            ToolTip.Tip="Скопировать логин" AutomationProperties.Name="Скопировать логин" />
+                    <Button Grid.Column="1" Classes="seg" Content=":" Click="OnCopyLoginPass"
+                            ToolTip.Tip="Скопировать логин:пароль" AutomationProperties.Name="Скопировать логин и пароль" />
+                    <Button Grid.Column="2" Classes="seg right" Content="pass" Click="OnCopyPassword"
+                            ToolTip.Tip="Скопировать пароль" AutomationProperties.Name="Скопировать пароль" />
+                  </Grid>
+                </Border>
 
                 <!-- Password editor -->
                 <Border Classes="card" Background="{StaticResource Bg}" Padding="10" Margin="0,6,0,0"

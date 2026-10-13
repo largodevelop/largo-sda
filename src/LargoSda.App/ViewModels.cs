@@ -377,22 +377,28 @@ public sealed class MainViewModel : ObservableObject
     public Task CopyLoginAsync(Func<string, Task> setClipboard, AccountViewModel? account = null) =>
         CopyAsync(setClipboard, (account ?? Selected)?.Name, "Логин скопирован");
 
-    /// <summary>Copies login:password; opens the password editor when no password is saved yet.</summary>
+    /// <summary>Copies login:password; without a saved password copies just the login (never asks for anything).</summary>
     public async Task CopyLoginPasswordAsync(Func<string, Task> setClipboard, AccountViewModel? account = null)
     {
         account ??= Selected;
         if (account is null) return;
 
-        var password = account.Password;
-        if (password is null)
-        {
-            Selected = account;
-            Page = Page.Codes;
-            EditingPassword = true;
-            ShowHint(account.HasPassword ? "Пароль с другого ПК — задайте заново" : "Сначала задайте пароль", 3000);
-            return;
-        }
-        await CopyAsync(setClipboard, $"{account.Name}:{password}", "log:pass скопирован");
+        if (account.Password is { } password)
+            await CopyAsync(setClipboard, $"{account.Name}:{password}", "log:pass скопирован");
+        else
+            await CopyAsync(setClipboard, account.Name, "Пароля нет — скопирован логин");
+    }
+
+    /// <summary>Copies only the password; without a saved password just says so.</summary>
+    public async Task CopyPasswordAsync(Func<string, Task> setClipboard, AccountViewModel? account = null)
+    {
+        account ??= Selected;
+        if (account is null) return;
+
+        if (account.Password is { } password)
+            await CopyAsync(setClipboard, password, "Пароль скопирован");
+        else
+            ShowHint("Пароль не сохранён", 2500);
     }
 
     private async Task CopyAsync(Func<string, Task> setClipboard, string? text, string hint)
