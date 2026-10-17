@@ -121,11 +121,14 @@
         <TextBlock Classes="mono" Text="{Binding Version}" FontSize="11" Margin="14,0"
                    Foreground="{StaticResource TextFaint}" VerticalAlignment="Center" IsHitTestVisible="False" />
 
-        <Image Grid.Column="1" Source="/Assets/brand.png" Width="18" Height="18" IsHitTestVisible="False"
+        <Image Grid.Column="1" Source="/Assets/brand.png" Width="27" Height="27" IsHitTestVisible="False"
                Classes="brand-mark" Classes.online="{Binding TimeSynced}"
                ToolTip.Tip="{Binding TimeStatus}" />
 
         <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Classes="caption" IsVisible="{Binding UpdateAvailable}" Click="OnUpdate" ToolTip.Tip="{Binding UpdateHint}" AutomationProperties.Name="Обновить">
+            <Path Classes="icon" Data="M5,10 V1.5 M1.5,5 L5,1.5 L8.5,5" Stroke="{StaticResource Brand}" StrokeThickness="1.6" />
+          </Button>
           <Button Classes="caption" Click="OnMinimize" ToolTip.Tip="Свернуть" AutomationProperties.Name="Свернуть">
             <Path Classes="icon" Data="M0,0.5 H10" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1" />
           </Button>

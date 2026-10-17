@@ -41,6 +41,11 @@ public partial class MainWindow : Window
 
     private void OnClose(object? sender, RoutedEventArgs e) => Close();
 
+    private async void OnUpdate(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel is { } vm && await vm.InstallUpdateAsync()) Close();
+    }
+
     // ---------- Navigation & codes ----------
 
     private void OnShowCodes(object? sender, RoutedEventArgs e)

@@ -113,6 +113,57 @@ public sealed class MainViewModel : ObservableObject
     public ObservableCollection<AccountViewModel> Accounts { get; } = [];
     public ObservableCollection<ConfirmationViewModel> Confirmations { get; } = [];
 
+    // ---------- Auto-update ----------
+
+    private UpdateInfo? _update;
+    private bool _updating;
+
+    public bool UpdateAvailable => _update is not null;
+
+    public string UpdateHint => _update is null ? "" : $"Доступно обновление {_update.Tag}: нажмите, чтобы установить";
+
+    /// <summary>Check GitHub releases every 5 minutes; the arrow in the titlebar appears when a newer version is out.</summary>
+    public async Task WatchUpdatesAsync()
+    {
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        while (true)
+        {
+            try
+            {
+                var info = await Updater.CheckAsync();
+                if (!_updating)
+                {
+                    _update = info;
+                    Raise(nameof(UpdateAvailable), nameof(UpdateHint));
+                }
+            }
+            catch { /* offline: try again later */ }
+            await Task.Delay(TimeSpan.FromMinutes(5));
+        }
+    }
+
+    /// <summary>Download the new exe and hand over to it; returns true when the app should close now.</summary>
+    public async Task<bool> InstallUpdateAsync()
+    {
+        if (_update is null || _updating) return false;
+        _updating = true;
+        var info = _update;
+        try
+        {
+            Status = $"Скачиваю {info.Tag}…";
+            var progress = new Progress<double>(p => Status = $"Скачиваю {info.Tag}: {(int)(p * 100)}%");
+            var path = await Updater.DownloadAsync(info, progress);
+            Updater.StageRestart(path);
+            return true;
+        }
+        catch (Exception exception)
+        {
+            Status = $"Обновление не удалось: {exception.Message}";
+            _updating = false;
+            return false;
+        }
+    }
+
     public string Version { get; } =
         "v" + (Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0");
 
@@ -128,6 +179,7 @@ public sealed class MainViewModel : ObservableObject
         WatchFolder();
         Reload();
         _ = SyncTimeAsync();
+        _ = WatchUpdatesAsync();
     }
 
     // ---------- Navigation ----------
