@@ -43,7 +43,10 @@ public partial class MainWindow : Window
 
     private async void OnUpdate(object? sender, RoutedEventArgs e)
     {
-        if (ViewModel is { } vm && await vm.InstallUpdateAsync()) Close();
+        if (ViewModel is not { } vm) return;
+        var handle = TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+        vm.ProgressChanged = fraction => TaskbarProgress.Set(handle, fraction);
+        if (await vm.InstallUpdateAsync()) Close();
     }
 
     // ---------- Navigation & codes ----------

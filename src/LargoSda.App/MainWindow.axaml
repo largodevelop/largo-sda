@@ -114,6 +114,11 @@
 
   <Grid RowDefinitions="34,*" DragDrop.AllowDrop="True">
 
+    <!-- Update download: a thin line on the bottom edge of the titlebar -->
+    <ProgressBar Grid.Row="0" Height="2" MinHeight="2" VerticalAlignment="Bottom" Minimum="0" Maximum="1" ZIndex="5"
+                 Value="{Binding UpdateProgress}" IsVisible="{Binding UpdateBusy}" IsHitTestVisible="False"
+                 Foreground="{StaticResource Brand}" Background="Transparent" />
+
     <!-- ============ Titlebar ============ -->
     <Border Grid.Row="0" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
       <Grid x:Name="TitleBar" Background="{StaticResource Bg}" ColumnDefinitions="*,Auto,*"

@@ -120,6 +120,25 @@ public sealed class MainViewModel : ObservableObject
 
     public bool UpdateAvailable => _update is not null;
 
+    private double _updateProgress;
+    private bool _updateBusy;
+
+    /// <summary>0..1 while the update downloads: the thin line under the titlebar and the taskbar button follow it.</summary>
+    public double UpdateProgress => _updateProgress;
+
+    public bool UpdateBusy => _updateBusy;
+
+    /// <summary>Called with the fraction (0..1), a negative value for "installing", or null when the bar must go away.</summary>
+    public Action<double?>? ProgressChanged { get; set; }
+
+    private void ShowProgress(double? fraction)
+    {
+        _updateBusy = fraction is not null;
+        _updateProgress = fraction is > 0 ? fraction.Value : 0;
+        Raise(nameof(UpdateProgress), nameof(UpdateBusy));
+        ProgressChanged?.Invoke(fraction);
+    }
+
     public string UpdateHint => _update is null ? "" : $"Доступно обновление {_update.Tag}: нажмите, чтобы установить";
 
     /// <summary>Check GitHub releases every 5 minutes; the arrow in the titlebar appears when a newer version is out.</summary>
@@ -151,14 +170,21 @@ public sealed class MainViewModel : ObservableObject
         try
         {
             Status = $"Скачиваю {info.Tag}…";
-            var progress = new Progress<double>(p => Status = $"Скачиваю {info.Tag}: {(int)(p * 100)}%");
+            var progress = new Progress<double>(p =>
+            {
+                Status = $"Скачиваю {info.Tag}: {(int)(p * 100)}%";
+                ShowProgress(p);
+            });
+            ShowProgress(0);
             var path = await Updater.DownloadAsync(info, progress);
+            ShowProgress(-1);
             Updater.StageRestart(path);
             return true;
         }
         catch (Exception exception)
         {
             Status = $"Обновление не удалось: {exception.Message}";
+            ShowProgress(null);
             _updating = false;
             return false;
         }
