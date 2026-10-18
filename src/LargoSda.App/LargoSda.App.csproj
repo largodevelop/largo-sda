@@ -10,7 +10,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>LargoSDA</AssemblyName>
     <RootNamespace>LargoSda.App</RootNamespace>
-    <Version>0.2.1</Version>
+    <Version>0.2.2</Version>
     <Company>Largo Develop</Company>
     <Product>Largo SDA</Product>
     <Description>Largo SDA: Steam Guard коды, подтверждения обменов и маркета</Description>

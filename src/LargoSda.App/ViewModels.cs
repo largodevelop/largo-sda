@@ -177,7 +177,8 @@ public sealed class MainViewModel : ObservableObject
             });
             ShowProgress(0);
             var path = await Updater.DownloadAsync(info, progress);
-            ShowProgress(-1);
+            ShowProgress(1.0);
+            await Task.Delay(1500); // the full bar stays visible for a moment, then the app closes and comes back updated
             Updater.StageRestart(path);
             return true;
         }
